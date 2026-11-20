@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>보카로 가사 타자연습</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1020; --panel:#161a33; --panel2:#1e2342; --line:#2b3160;
+    --text:#e9ecff; --muted:#8a90b8; --teal:#3fd6c8; --pink:#ff5fa2; --yellow:#ffd65c; --bad:#ff5468;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,sans-serif}
+  body{min-height:100vh;background:
+    radial-gradient(900px 500px at 10% -10%, rgba(63,214,200,.15), transparent 60%),
+    radial-gradient(800px 500px at 110% 10%, rgba(255,95,162,.13), transparent 60%), var(--bg)}
+  header{max-width:1000px;margin:0 auto;padding:28px 20px 8px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  h1{font-family:"Black Han Sans",sans-serif;font-weight:400;font-size:clamp(28px,5vw,40px);margin:0;letter-spacing:.5px}
+  h1 .a{color:var(--teal)} h1 .b{color:var(--pink)}
+  .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  main{max-width:1000px;margin:0 auto;padding:12px 20px 60px}
+  [hidden]{display:none!important}
+  button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 16px;background:var(--panel2);color:var(--text);transition:.15s}
+  button:hover{filter:brightness(1.2)}
+  button.pri{background:var(--teal);color:#06201d;font-weight:700}
+  button.pink{background:var(--pink);color:#2a0716;font-weight:700}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  button.danger{background:transparent;border:1px solid #5a2333;color:var(--bad)}
+
+  /* list */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
+  .card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;cursor:pointer;text-align:left;min-height:104px;display:flex;flex-direction:column;justify-content:space-between;transition:.15s}
+  .card:hover{border-color:var(--teal);transform:translateY(-2px)}
+  .card .t{font-weight:700;font-size:16px;line-height:1.35;padding-right:64px;word-break:keep-all}
+  .card .m{font-size:12.5px;color:var(--muted);margin-top:10px}
+  .card .m .ready{color:var(--teal)} .card .m .best{color:var(--yellow)}
+  .card .need{color:var(--pink)}
+  .card .edit{position:absolute;top:10px;right:10px;padding:4px 8px;font-size:13px;background:transparent;color:var(--muted);border-radius:8px}
+  .card .edit:hover{background:var(--panel2);color:var(--text)}
+  .card.demo{border-style:dashed;border-color:#3b4280}
+  .card.add{align-items:center;justify-content:center;color:var(--muted);border-style:dashed;font-weight:500}
+  .hint{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13.5px;color:var(--muted);line-height:1.6}
+  .hint b{color:var(--text)}
+
+  /* play */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .song-name{font-weight:700;font-size:18px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .stat .k{font-size:12px;color:var(--muted)}
+  .stat .v{font-size:22px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:13px;color:var(--muted);font-weight:500;margin-left:2px}
+  .bar{height:6px;background:var(--panel2);border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--pink));transition:width .25s}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px 22px 20px;margin-top:14px}
+  .prev{color:#565c88;font-size:15px;min-height:22px;margin-bottom:14px;white-space:pre-wrap}
+  .target{font-size:clamp(20px,3.6vw,30px);line-height:1.6;font-weight:500;letter-spacing:.5px;word-break:keep-all;white-space:pre-wrap;min-height:48px}
+  .target span{border-radius:4px;position:relative}
+  .target .ok{color:var(--teal)}
+  .target .bad{color:#fff;background:rgba(255,84,104,.55)}
+  .target .comp{color:var(--yellow)}
+  .target .cur::before{content:"";position:absolute;left:-1px;top:12%;bottom:12%;width:2px;background:var(--pink);animation:blink 1s steps(1) infinite}
+  .target .todo{color:#cfd3f5}
+  .target .extra{color:#fff;background:rgba(255,84,104,.55)}
+  @keyframes blink{50%{opacity:0}}
+  #typer{width:100%;margin-top:18px;font:inherit;font-size:clamp(18px,3vw,24px);padding:14px 16px;border-radius:12px;border:2px solid var(--line);background:#0b0e1d;color:var(--text);outline:none}
+  #typer:focus{border-color:var(--teal)}
+  .next{margin-top:18px;border-top:1px dashed var(--line);padding-top:14px;color:var(--muted);font-size:15.5px;line-height:1.9;white-space:pre-wrap}
+  .next div:nth-child(2){opacity:.55}
+  .keys{margin-top:12px;font-size:12.5px;color:var(--muted)}
+  kbd{background:var(--panel2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font-size:12px;font-family:inherit}
+
+  /* result */
+  .result{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 24px;text-align:center;margin-top:20px}
+  .grade{font-family:"Black Han Sans",sans-serif;font-size:96px;line-height:1;background:linear-gradient(135deg,var(--teal),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .result .stats{max-width:620px;margin:22px auto}
+  .newbest{color:var(--yellow);font-weight:700;margin-top:6px}
+  .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  /* modal */
+  #modal{position:fixed;inset:0;background:rgba(5,6,15,.75);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+  .dialog{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;width:min(640px,100%);max-height:92vh;display:flex;flex-direction:column;gap:12px}
+  .dialog h2{margin:0;font-size:18px}
+  .dialog input[type=text],.dialog textarea{width:100%;font:inherit;font-size:15px;background:#0b0e1d;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none}
+  .dialog textarea{min-height:260px;resize:vertical;line-height:1.7}
+  .dialog input:focus,.dialog textarea:focus{border-color:var(--teal)}
+  .dialog label{font-size:13.5px;color:var(--muted);display:flex;gap:8px;align-items:center}
+  .dialog .foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .dialog .foot .r{display:flex;gap:8px;margin-left:auto}
+  .small{font-size:12.5px;color:var(--muted)}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+  .seg button{padding:8px 14px;background:transparent;color:var(--muted);border-radius:9px}
+  .seg button.on{background:var(--teal);color:#06201d;font-weight:700}
+  .seg button.on.pk{background:var(--pink);color:#2a0716}
+  .badge{display:inline-block;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;margin-left:8px;vertical-align:2px;background:rgba(63,214,200,.15);color:var(--teal)}
+  .badge.pk{background:rgba(255,95,162,.15);color:var(--pink)}
+  .rank{width:100%;border-collapse:collapse;font-size:14.5px}
+  .rank th,.rank td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+  .rank th{color:var(--muted);font-weight:500;font-size:12.5px}
+  .rank td.n{font-variant-numeric:tabular-nums;text-align:right}
+  .rank tr.me td{color:var(--yellow);font-weight:700}
+  .roombar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:6px;vertical-align:1px}
+  .dot.on{background:var(--teal);box-shadow:0 0 8px var(--teal)}
+  .card .top1{color:var(--pink)}
+  .card .trophy{position:absolute;top:10px;right:40px;padding:4px 8px;font-size:13px;background:transparent;color:var(--muted);border-radius:8px}
+  .card .trophy:hover{background:var(--panel2);color:var(--text)}
+  #r-rank{max-width:520px;margin:0 auto 20px;text-align:left}
+  @media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1><span class="a">보카로</span> 가사 <span class="b">타자연습</span></h1>
+    <div class="sub">좋아하는 곡의 가사를 한 줄씩 따라 치며 한글 타수를 올려 보세요</div>
+  </div>
+</header>
+
+<main>
+  <!-- 곡 목록 -->
+  <section id="v-list">
+    <div class="hint roombar" id="room-bar" hidden>
+      <div><span class="dot" id="net-dot"></span><span id="room-info"></span></div>
+      <div class="row">
+        <button class="ghost" id="btn-invite">친구 초대 링크 복사</button>
+        <button class="ghost" id="btn-room">방 · 닉네임 변경</button>
+      </div>
+    </div>
+    <div class="small" id="invite-msg" style="margin:-4px 0 10px"></div>
+    <div class="hint">
+      <b>사용법</b> · 곡 카드를 누르고 가사를 붙여넣으면 바로 연습할 수 있어요. <span id="hint-store">가사는 이 브라우저에만 저장되고 다른 사람에게는 보이지 않아요.</span>
+      가사가 없는 곡은 <span style="color:var(--pink)">분홍색</span>으로 표시돼요. 먼저 감을 잡고 싶다면 <b>연습용 데모</b>부터 해 보세요.
+      <br><b>번역 모드</b>는 한국어 번역 가사를, <b>발음 모드</b>는 일본어 발음을 한글로 적은 가사(요조라니 히카루…)를 쳐요.
+    </div>
+    <div class="toolbar">
+      <div class="seg" id="mode-seg">
+        <button data-mode="trans">번역 모드</button>
+        <button data-mode="pron">발음 모드</button>
+      </div>
+      <button class="ghost" id="btn-backup">가사 백업 · 불러오기</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- 플레이 -->
+  <section id="v-play" hidden>
+    <div class="topbar">
+      <div class="song-name" id="p-title"></div>
+      <div class="row">
+        <button class="ghost" id="btn-restart">처음부터</button>
+        <button class="ghost" id="btn-quit">그만두기</button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">현재 타수</div><div class="v" id="s-cpm">0<small>타/분</small></div></div>
+      <div class="stat"><div class="k">정확도</div><div class="v" id="s-acc">100<small>%</small></div></div>
+      <div class="stat"><div class="k">진행</div><div class="v" id="s-prog">0<small>/0</small></div></div>
+      <div class="stat"><div class="k">경과 시간</div><div class="v" id="s-time">0:00</div></div>
+    </div>
+    <div class="bar"><i id="p-bar"></i></div>
+    <div class="stage" id="stage">
+      <div class="prev" id="p-prev"></div>
+      <div class="target" id="p-target"></div>
+      <input id="typer" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="여기에 입력하고 Enter">
+      <div class="next" id="p-next"></div>
+      <div class="keys"><kbd>Enter</kbd> 다음 줄 &nbsp; <kbd>Esc</kbd> 그만두기 &nbsp; · 줄을 정확히 다 치면 자동으로 넘어가요</div>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <section id="v-result" hidden>
+    <div class="result">
+      <div class="small" id="r-title"></div>
+      <div class="grade" id="r-grade">A</div>
+      <div class="newbest" id="r-best" hidden>★ 최고 기록 갱신!</div>
+      <div class="stats">
+        <div class="stat"><div class="k">평균 타수</div><div class="v" id="r-cpm">0</div></div>
+        <div class="stat"><div class="k">정확도</div><div class="v" id="r-acc">0</div></div>
+        <div class="stat"><div class="k">걸린 시간</div><div class="v" id="r-time">0:00</div></div>
+        <div class="stat"><div class="k">줄 수</div><div class="v" id="r-lines">0</div></div>
+      </div>
+      <div id="r-rank"></div>
+      <div class="row">
+        <button class="pri" id="r-again">한 번 더</button>
+        <button id="r-list">곡 목록으로</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 가사 편집 -->
+<div id="modal" hidden>
+  <div class="dialog">
+    <h2 id="m-head">가사 붙여넣기</h2>
+    <input type="text" id="m-title" placeholder="곡 제목">
+    <textarea id="m-text" placeholder="가사를 붙여넣으세요. 한 줄이 연습 한 줄이 돼요."></textarea>
+    <label><input type="checkbox" id="m-skip" checked> 한글이 없는 줄(일본어·영어만 있는 줄)은 건너뛰기</label>
+    <label><input type="checkbox" id="m-pron" checked> 일본어 원문 바로 아래 한글 줄은 '발음'으로 구분하기</label>
+    <label><input type="checkbox" id="m-paren"> 괄호 ( ) 안의 내용 빼기 (코러스·발음 표기 등)</label>
+    <label>원문 없이 발음·번역이 한 줄씩 번갈아 나오면
+      <select id="m-alt" style="font:inherit;font-size:13px;background:#0b0e1d;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:4px 6px">
+        <option value="none">해당 없음</option>
+        <option value="even">발음 줄이 먼저 (발음→번역)</option>
+        <option value="odd">번역 줄이 먼저 (번역→발음)</option>
+      </select>
+    </label>
+    <label id="m-share-wrap" hidden><input type="checkbox" id="m-share" checked> 같은 방 친구들과 이 가사 공유하기</label>
+    <div class="small" id="m-by" hidden></div>
+    <div class="seg" id="pv-seg" style="align-self:flex-start">
+      <button data-pv="trans">번역 미리보기</button>
+      <button data-pv="pron">발음 미리보기</button>
+    </div>
+    <div class="small" id="m-count"></div>
+    <div class="small" id="m-preview" style="background:#0b0e1d;border:1px solid var(--line);border-radius:10px;padding:8px 12px;line-height:1.8;white-space:pre-wrap;max-height:120px;overflow:auto"></div>
+    <div class="foot">
+      <div class="row" style="justify-content:flex-start">
+        <button class="danger" id="m-clear">가사 지우기</button>
+        <button class="danger" id="m-del" hidden>곡 삭제</button>
+      </div>
+      <div class="r">
+        <button class="ghost" id="m-cancel">취소</button>
+        <button class="pri" id="m-save">저장하고 연습</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 방 입장 -->
+<div id="join" hidden style="position:fixed;inset:0;background:rgba(5,6,15,.85);display:flex;align-items:center;justify-content:center;padding:16px;z-index:12">
+  <div class="dialog" style="width:min(460px,100%)">
+    <h2>친구들과 같이 하기</h2>
+    <div class="small">같은 방 코드를 쓰는 사람끼리 곡 목록과 기록이 공유돼요. 방 코드는 비밀번호 역할을 하니 친구들에게만 알려 주세요.</div>
+    <label style="flex-direction:column;align-items:stretch;gap:6px">닉네임
+      <input type="text" id="j-name" maxlength="20" placeholder="예: 미쿠좋아">
+    </label>
+    <label style="flex-direction:column;align-items:stretch;gap:6px">방 코드
+      <input type="text" id="j-room" maxlength="40" placeholder="친구에게 받은 코드, 또는 새로 만들기">
+    </label>
+    <button class="ghost" id="j-new" style="align-self:flex-start">새 방 코드 만들기</button>
+    <div class="small" id="j-msg" style="color:var(--pink)"></div>
+    <div class="foot">
+      <button class="ghost" id="j-solo">혼자 하기 (이 기기에만 저장)</button>
+      <div class="r"><button class="pri" id="j-go">입장</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- 랭킹 -->
+<div id="rank" hidden style="position:fixed;inset:0;background:rgba(5,6,15,.75);display:flex;align-items:center;justify-content:center;padding:16px;z-index:11">
+  <div class="dialog" style="width:min(520px,100%)">
+    <h2 id="rk-head">랭킹</h2>
+    <div class="seg" id="rk-seg" style="align-self:flex-start">
+      <button data-rk="trans">번역 모드</button>
+      <button data-rk="pron">발음 모드</button>
+    </div>
+    <div id="rk-body" style="overflow:auto"></div>
+    <div class="foot"><div class="r"><button class="ghost" id="rk-close">닫기</button></div></div>
+  </div>
+</div>
+
+<!-- 백업 -->
+<div id="bk" hidden style="position:fixed;inset:0;background:rgba(5,6,15,.75);display:flex;align-items:center;justify-content:center;padding:16px;z-index:11">
+  <div class="dialog">
+    <h2>가사 백업 · 불러오기</h2>
+    <div class="small">가사는 지금 쓰는 브라우저에만 저장돼요. 다른 컴퓨터나 저장한 파일로 옮길 때는 아래 백업 코드를 복사해 두었다가, 옮긴 곳에서 붙여넣고 <b>불러오기</b>를 누르세요. 같은 제목의 곡은 덮어써요.</div>
+    <textarea id="bk-text" style="min-height:180px;font-size:12.5px;font-family:ui-monospace,monospace"></textarea>
+    <div class="small" id="bk-msg"></div>
+    <div class="foot">
+      <div class="row" style="justify-content:flex-start">
+        <button id="bk-copy">백업 코드 복사</button>
+        <button id="bk-dl" hidden>파일로 저장</button>
+        <label style="cursor:pointer"><span class="ghost" style="border:1px solid var(--line);border-radius:10px;padding:9px 14px">파일 열기</span><input type="file" id="bk-file" accept=".json,.txt" hidden></label>
+      </div>
+      <div class="r">
+        <button class="ghost" id="bk-close">닫기</button>
+        <button class="pri" id="bk-load">불러오기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   ▼▼▼ Firebase 설정값 (1단계에서 복사한 firebaseConfig) ▼▼▼
+   ========================================================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDrqEy9W34QrTjK2yepcPkAdt6H0peN8H0",
+  authDomain: "vocal-game.firebaseapp.com",
+  projectId: "vocal-game",
+  storageBucket: "vocal-game.firebasestorage.app",
+  messagingSenderId: "559688417840",
+  appId: "1:559688417840:web:85f3ab341499b5919b63f5"
+};
+/* ▲▲▲ 여기까지 ▲▲▲ */
+
+const KEY = 'voca-typing-v1';
+const DEFAULT_SONGS = [
+  '아이디 스마일','노매드','그 그림의 이름은','열이상','25시의 정열','비터초코데코레이션',
+  '소녀레이','빙그레 조사대의 테마 ^^','톤데모 원더즈','혼돈부기','이아루 팬클럽',
+  '누덕누덕 스타카토','신 같네','테라테라','Drop POP Candy','키티','나는 비','모니터링'
+];
+const DEMO = '연습용 데모 (오리지널)';
+const DEMO_TEXT = `夜のモニター ひとりきり
+요루노 모니타 히토리키리
+모니터 불빛 아래 혼자 남은 밤
+キーボードに落ちた声
+키보도니 오치타 코에
+키보드 위에 떨어진 작은 목소리
+名前のないメロディ
+나마에노 나이 메로디
+아직 이름 없는 멜로디를 따라
+一文字ずつ届けたい
+히토모지즈츠 토도케타이
+한 글자씩 너에게 닿기를 바라
+速くなるリズムでも
+하야쿠 나루 리즈무데모
+빨라지는 박자에 숨이 차올라도
+間違えた音も歌になる
+마치가에타 오토모 우타니 나루
+틀린 음표마저 노래가 될 거야
+画面の向こう 聞こえるなら
+가멘노 무코우 키코에루나라
+화면 너머 어딘가 들리고 있다면
+今日もこの歌を歌うよ
+쿄우모 코노 우타오 우타우요
+오늘도 나는 이 노래를 부를게`;
+
+/* ---------- 저장 ---------- */
+let store = { songs:null, lyrics:{}, opts:{}, best:{} };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) store = Object.assign(store, s); } catch(e) {}
+if (!Array.isArray(store.songs)) store.songs = DEFAULT_SONGS.slice();
+if (store.mode !== 'pron') store.mode = 'trans';
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
+
+/* ---------- 가사 처리 ---------- */
+const DEF_OPT = {skip:true, paren:false, pron:true, alt:'none'};
+const JP = /[぀-ヿㇰ-ㇿ一-鿿ｦ-ﾟ]/;
+const HAN = /[가-힣]/;
+// mode: 'trans' = 번역 가사, 'pron' = 일본어 발음(한글 표기)
+function parseLines(text, opt, mode){
+  opt = Object.assign({}, DEF_OPT, opt || {});
+  mode = mode || 'trans';
+  let raw = String(text||'').split(/\r?\n/).map(l => {
+    if (opt.paren) l = l.replace(/[（(][^)）]*[)）]/g, '');
+    return l.replace(/[　\s]+/g,' ').trim();
+  }).filter(Boolean);
+  // 일본어 원문 바로 다음 한글 줄 = 발음 줄
+  const pronIdx = new Set();
+  if (opt.pron){
+    for (let i = 0; i < raw.length - 1; i++){
+      if (JP.test(raw[i]) && !HAN.test(raw[i]) && HAN.test(raw[i+1]) && !JP.test(raw[i+1])) pronIdx.add(i+1);
+    }
+  }
+  if (pronIdx.size){
+    return mode === 'pron'
+      ? raw.filter((_, i) => pronIdx.has(i))
+      : raw.filter((l, i) => !pronIdx.has(i) && (!opt.skip || HAN.test(l)));
+  }
+  let out = raw.filter(l => !opt.skip || HAN.test(l));
+  // 원문 없이 발음·번역이 번갈아 나오는 경우 (even = 발음이 먼저)
+  if (opt.alt !== 'none'){
+    const pronFirst = opt.alt === 'even';
+    const keepEven = (mode === 'pron') === pronFirst; // 0,2,4…번째 줄을 남길지
+    out = out.filter((_, i) => (i % 2 === 0) === keepEven);
+  }
+  return out;
+}
+// 내 기기에 가사가 있으면 그걸, 없으면 방에 공유된 가사를 써요
+function lyricOf(title){
+  if (store.lyrics[title]) return store.lyrics[title];
+  const sh = NET.shared[title]; return sh ? sh.text : '';
+}
+function optsOf(title){
+  if (store.lyrics[title]) return store.opts[title];
+  const sh = NET.shared[title]; return sh ? sh.opts : store.opts[title];
+}
+function linesOf(title, mode){
+  mode = mode || store.mode;
+  if (title === DEMO) return parseLines(DEMO_TEXT, null, mode);
+  return parseLines(lyricOf(title), optsOf(title), mode);
+}
+function allTitles(){
+  const list = [...store.songs];
+  Object.keys(NET.shared).forEach(t => { if (!list.includes(t)) list.push(t); });
+  return list;
+}
+const NET = { ready:false, on:false, err:'', db:null, fs:null, uid:null, shared:{}, players:[], unsub:[] };
+const bestKey = (title, mode) => (mode || store.mode) === 'pron' ? title + '::pron' : title;
+const MODE_NAME = { trans:'번역 모드', pron:'발음 모드' };
+
+/* ---------- 타수 계산 (자모 기준) ---------- */
+const JUNG_N = [1,1,1,1,1,1,1,1,1,2,2,2,1,1,2,2,2,1,1,2,1];
+const JONG_N = [0,1,1,2,1,2,2,1,1,2,2,2,2,2,2,2,1,1,2,1,1,1,1,1,1,1,1,1];
+function strokes(ch){
+  const c = ch.charCodeAt(0);
+  if (c >= 0xAC00 && c <= 0xD7A3){
+    const s = c - 0xAC00;
+    return 1 + JUNG_N[Math.floor((s % 588) / 28)] + JONG_N[s % 28];
+  }
+  return 1;
+}
+
+/* ---------- 화면 전환 ---------- */
+const $ = id => document.getElementById(id);
+function show(v){ ['v-list','v-play','v-result'].forEach(x => $(x).hidden = x !== v); window.scrollTo(0,0); }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- 목록 ---------- */
+function renderList(){
+  document.querySelectorAll('#mode-seg button').forEach(b => {
+    const on = b.dataset.mode === store.mode;
+    b.classList.toggle('on', on); b.classList.toggle('pk', on && store.mode === 'pron');
+  });
+  const g = $('grid'); g.innerHTML = '';
+  const all = [DEMO, ...allTitles()];
+  all.forEach(title => {
+    const n = linesOf(title).length, b = store.best[bestKey(title)];
+    const top = NET.on ? rankRows(bestKey(title))[0] : null;
+    const el = document.createElement('div');
+    el.className = 'card' + (title === DEMO ? ' demo' : '');
+    el.innerHTML = `<div class="t">${esc(title)}</div>
+      <div class="m">${n ? `<span class="ready">${n}줄</span>` : (store.lyrics[title] && store.mode === 'pron' ? '<span class="need">발음 줄을 찾지 못했어요</span>' : '<span class="need">가사 붙여넣기 필요</span>')}
+      ${b ? ` · <span class="best">내 최고 ${b.cpm}타</span>` : ''}
+      ${top ? `<br><span class="top1">👑 ${esc(top.name)} ${top.cpm}타</span>` : ''}
+      ${NET.shared[title] && !store.lyrics[title] ? '<br>공유 가사 · ' + esc(NET.shared[title].byName || '친구') : ''}</div>
+      ${NET.on ? '<button class="trophy" title="랭킹">🏆</button>' : ''}
+      ${title !== DEMO ? '<button class="edit" title="가사 편집">✎</button>' : ''}`;
+    el.onclick = () => n ? startPlay(title) : openEditor(title);
+    const e = el.querySelector('.edit');
+    if (e) e.onclick = ev => { ev.stopPropagation(); openEditor(title); };
+    const tr = el.querySelector('.trophy');
+    if (tr) tr.onclick = ev => { ev.stopPropagation(); openRank(title); };
+    g.appendChild(el);
+  });
+  const add = document.createElement('div');
+  add.className = 'card add'; add.textContent = '＋ 곡 추가하기';
+  add.onclick = () => openEditor(null);
+  g.appendChild(add);
+}
+
+/* ---------- 편집기 ---------- */
+let editing = null;
+function openEditor(title){
+  editing = title;
+  const isNew = title === null;
+  $('m-head').textContent = isNew ? '새 곡 추가' : '가사 붙여넣기';
+  $('m-title').value = isNew ? '' : title;
+  $('m-title').readOnly = !isNew;
+  $('m-title').style.display = isNew ? '' : 'none';
+  if (!isNew) $('m-head').textContent = `「${title}」 가사`;
+  $('m-text').value = isNew ? '' : lyricOf(title);
+  const o = Object.assign({}, DEF_OPT, (!isNew && optsOf(title)) || {});
+  const sh = !isNew && NET.shared[title];
+  $('m-share-wrap').hidden = !NET.on;
+  $('m-share').checked = isNew || !!sh || !store.lyrics[title];
+  $('m-by').hidden = !sh;
+  if (sh) $('m-by').textContent = `공유한 사람: ${sh.byName || '친구'} · 수정하면 방 전체에 반영돼요`;
+  $('m-skip').checked = o.skip; $('m-paren').checked = o.paren;
+  $('m-pron').checked = o.pron; $('m-alt').value = o.alt;
+  pvMode = store.mode;
+  $('m-del').hidden = isNew || DEFAULT_SONGS.includes(title) || (sh && sh.by !== NET.uid);
+  $('m-clear').hidden = isNew;
+  updateCount();
+  $('modal').hidden = false;
+  setTimeout(() => (isNew ? $('m-title') : $('m-text')).focus(), 30);
+}
+function curOpt(){
+  return {skip:$('m-skip').checked, paren:$('m-paren').checked, pron:$('m-pron').checked, alt:$('m-alt').value};
+}
+let pvMode = 'trans';
+function updateCount(){
+  const t = $('m-text').value, o = curOpt();
+  const nt = parseLines(t, o, 'trans').length, np = parseLines(t, o, 'pron').length;
+  const ls = parseLines(t, o, pvMode);
+  document.querySelectorAll('#pv-seg button').forEach(b => {
+    const on = b.dataset.pv === pvMode;
+    b.classList.toggle('on', on); b.classList.toggle('pk', on && pvMode === 'pron');
+  });
+  $('m-count').textContent = (nt || np)
+    ? `번역 모드 ${nt}줄 · 발음 모드 ${np}줄 — ${MODE_NAME[pvMode]} 미리보기 (앞부분)`
+    : '아직 연습할 줄이 없어요.';
+  $('m-preview').hidden = !ls.length;
+  $('m-preview').textContent = ls.slice(0, 6).join('\n');
+}
+document.querySelectorAll('#pv-seg button').forEach(b => b.onclick = () => { pvMode = b.dataset.pv; updateCount(); });
+document.querySelectorAll('#mode-seg button').forEach(b => b.onclick = () => { store.mode = b.dataset.mode; save(); renderList(); });
+['m-text','m-skip','m-paren','m-pron','m-alt'].forEach(id => {
+  $(id).addEventListener('input', updateCount); $(id).addEventListener('change', updateCount);
+});
+$('m-cancel').onclick = () => { $('modal').hidden = true; };
+$('m-clear').onclick = () => { $('m-text').value = ''; updateCount(); };
+$('m-del').onclick = async () => {
+  const sh = NET.shared[editing];
+  if (NET.on && sh && sh.by === NET.uid){
+    try { await NET.fs.deleteDoc(NET.fs.doc(NET.db, 'rooms', store.room, 'songs', sh.id)); }
+    catch(e){ $('m-count').textContent = '공유 곡을 지우지 못했어요: ' + (e.code || e.message); return; }
+  }
+  store.songs = store.songs.filter(s => s !== editing);
+  delete store.lyrics[editing]; delete store.opts[editing]; delete store.best[editing];
+  save(); $('modal').hidden = true; renderList();
+};
+$('m-save').onclick = async () => {
+  let title = editing;
+  if (title === null){
+    title = $('m-title').value.trim();
+    if (!title){ $('m-title').focus(); return; }
+    if (title === DEMO) title += ' 2';
+    if (!store.songs.includes(title) && !NET.shared[title]) store.songs.push(title);
+  }
+  const text = $('m-text').value, opt = curOpt();
+  if (NET.on && $('m-share').checked && text.trim()){
+    const sh = NET.shared[title];
+    $('m-save').disabled = true; $('m-count').textContent = '방에 공유하는 중…';
+    try {
+      const id = sh ? sh.id : songId(title);
+      const body = { title, text: text.slice(0, 30000), opts: opt,
+        by: sh ? sh.by : NET.uid, byName: sh ? (sh.byName || '') : store.name, updated: Date.now() };
+      await NET.fs.setDoc(NET.fs.doc(NET.db, 'rooms', store.room, 'songs', id), body);
+      NET.shared[title] = Object.assign({ id }, body);
+      delete store.lyrics[title]; delete store.opts[title];
+    } catch(e){
+      $('m-save').disabled = false;
+      $('m-count').textContent = '공유하지 못해서 이 기기에만 저장했어요: ' + (e.code || e.message);
+      store.lyrics[title] = text; store.opts[title] = opt;
+      if (!store.songs.includes(title)) store.songs.push(title);
+      save(); renderList();
+      return;
+    }
+    $('m-save').disabled = false;
+  } else {
+    store.lyrics[title] = text; store.opts[title] = opt;
+  }
+  save(); $('modal').hidden = true; renderList();
+  if (linesOf(title).length) startPlay(title);
+};
+$('modal').addEventListener('click', e => { if (e.target.id === 'modal') $('modal').hidden = true; });
+
+/* ---------- 플레이 ---------- */
+const typer = $('typer');
+let P = null, composing = false, pendingEnter = false, ticker = null;
+
+function startPlay(title){
+  const lines = linesOf(title);
+  if (!lines.length) return openEditor(title);
+  P = { title, lines, mode:store.mode, idx:0, start:0, strokes:0, correct:0, total:0 };
+  $('p-title').innerHTML = `${esc(title)}<span class="badge${P.mode === 'pron' ? ' pk' : ''}">${MODE_NAME[P.mode]}</span>`;
+  typer.value = ''; composing = false; pendingEnter = false;
+  clearInterval(ticker); ticker = setInterval(tick, 200);
+  show('v-play'); renderLine(); tick();
+  setTimeout(() => typer.focus(), 30);
+}
+
+function lineScore(typed, target, excludeLast){
+  let c = 0, st = 0;
+  const lim = Math.min(typed.length - (excludeLast ? 1 : 0), target.length);
+  for (let i = 0; i < lim; i++) if (typed[i] === target[i]){ c++; st += strokes(target[i]); }
+  return { c, st, done: Math.max(0, lim) };
+}
+
+function renderLine(){
+  const target = P.lines[P.idx], typed = typer.value;
+  let h = '';
+  for (let i = 0; i < target.length; i++){
+    const t = target[i]; let cls;
+    if (i < typed.length){
+      if (typed[i] === t) cls = 'ok';
+      else if (i === typed.length - 1 && composing) cls = 'comp';
+      else cls = 'bad';
+    } else cls = i === typed.length ? 'todo cur' : 'todo';
+    h += `<span class="${cls}">${t === ' ' ? '&nbsp;' : esc(t)}</span>`;
+  }
+  if (typed.length > target.length) h += `<span class="extra">${esc(typed.slice(target.length))}</span>`;
+  else if (typed.length === target.length) h += '<span class="todo cur">&nbsp;</span>';
+  $('p-target').innerHTML = h;
+  $('p-prev').textContent = P.idx > 0 ? P.lines[P.idx - 1] : '';
+  $('p-next').innerHTML = P.lines.slice(P.idx + 1, P.idx + 3).map(l => `<div>${esc(l)}</div>`).join('');
+  $('s-prog').innerHTML = `${P.idx + 1}<small>/${P.lines.length}</small>`;
+  $('p-bar').style.width = (P.idx / P.lines.length * 100) + '%';
+}
+
+const fmt = ms => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+function tick(){
+  if (!P) return;
+  const el = P.start ? performance.now() - P.start : 0;
+  const cur = lineScore(typer.value, P.lines[P.idx] || '', composing);
+  const cpm = el > 1500 ? Math.round((P.strokes + cur.st) / (el / 60000)) : 0;
+  const tot = P.total + cur.done;
+  const acc = tot ? Math.round((P.correct + cur.c) / tot * 1000) / 10 : 100;
+  $('s-cpm').innerHTML = `${cpm}<small>타/분</small>`;
+  $('s-acc').innerHTML = `${acc}<small>%</small>`;
+  $('s-time').textContent = fmt(el);
+}
+
+function advance(){
+  if (!P) return;
+  const typed = typer.value; if (!typed) return;
+  const target = P.lines[P.idx];
+  const s = lineScore(typed, target, false);
+  P.correct += s.c; P.strokes += s.st;
+  P.total += target.length + Math.max(0, typed.length - target.length);
+  P.idx++; typer.value = '';
+  if (P.idx >= P.lines.length) finish(); else { renderLine(); tick(); }
+}
+
+typer.addEventListener('compositionstart', () => { composing = true; });
+typer.addEventListener('compositionend', () => {
+  composing = false;
+  if (!P) return;
+  renderLine();
+  if (pendingEnter){ pendingEnter = false; setTimeout(advance, 0); }
+  else if (typer.value === P.lines[P.idx]) setTimeout(() => { if (P && typer.value === P.lines[P.idx]) advance(); }, 0);
+});
+typer.addEventListener('input', () => {
+  if (!P) return;
+  if (!P.start && typer.value) P.start = performance.now();
+  renderLine();
+  if (!composing && typer.value === P.lines[P.idx]) advance();
+});
+typer.addEventListener('keydown', e => {
+  if (e.key === 'Enter'){
+    e.preventDefault();
+    if (e.isComposing || composing){ pendingEnter = true; return; }
+    advance();
+  } else if (e.key === 'Escape'){ quit(); }
+});
+$('stage').addEventListener('click', () => typer.focus());
+function quit(){ clearInterval(ticker); P = null; renderList(); show('v-list'); }
+$('btn-quit').onclick = quit;
+$('btn-restart').onclick = () => P && startPlay(P.title);
+
+/* ---------- 결과 ---------- */
+let lastTitle = null;
+function finish(){
+  clearInterval(ticker);
+  const el = performance.now() - P.start;
+  const cpm = Math.round(P.strokes / (Math.max(el, 1000) / 60000));
+  const acc = P.total ? Math.round(P.correct / P.total * 1000) / 10 : 0;
+  const grade = acc >= 98 && cpm >= 400 ? 'S' : acc >= 95 && cpm >= 300 ? 'A' : acc >= 90 && cpm >= 200 ? 'B' : acc >= 80 ? 'C' : 'D';
+  const bk = bestKey(P.title, P.mode), prev = store.best[bk];
+  const isBest = !prev || cpm > prev.cpm || (cpm === prev.cpm && acc > prev.acc);
+  if (isBest){ store.best[bk] = { cpm, acc }; save(); if (NET.on) pushPlayer(); }
+  $('r-title').textContent = `${P.title} · ${MODE_NAME[P.mode]}`;
+  $('r-grade').textContent = grade;
+  $('r-best').hidden = !isBest;
+  $('r-cpm').innerHTML = `${cpm}<small>타/분</small>`;
+  $('r-acc').innerHTML = `${acc}<small>%</small>`;
+  $('r-time').textContent = fmt(el);
+  $('r-lines').textContent = P.lines.length;
+  $('r-rank').innerHTML = NET.on ? `<div class="small" style="margin-bottom:6px">방 랭킹 · ${MODE_NAME[P.mode]}</div>` + rankTable(bk, 5) : '';
+  lastTitle = P.title; P = null;
+  show('v-result');
+}
+$('r-again').onclick = () => lastTitle && startPlay(lastTitle);
+$('r-list').onclick = () => { renderList(); show('v-list'); };
+
+/* ---------- 백업 ---------- */
+const isFile = location.protocol === 'file:';
+$('bk-dl').hidden = !isFile;
+function backupCode(){
+  return JSON.stringify({ app:'voca-typing', v:1, songs:store.songs, lyrics:store.lyrics, opts:store.opts, best:store.best });
+}
+$('btn-backup').onclick = () => { $('bk-text').value = backupCode(); $('bk-msg').textContent = ''; $('bk').hidden = false; };
+$('bk-close').onclick = () => { $('bk').hidden = true; };
+$('bk').addEventListener('click', e => { if (e.target.id === 'bk') $('bk').hidden = true; });
+$('bk-copy').onclick = async () => {
+  const t = backupCode(); $('bk-text').value = t;
+  try { await navigator.clipboard.writeText(t); $('bk-msg').textContent = '복사했어요. 옮길 곳에서 붙여넣고 불러오기를 누르세요.'; }
+  catch(e){ $('bk-text').select(); $('bk-msg').textContent = '자동 복사가 막혀 있어요. 위 코드가 선택됐으니 Ctrl+C로 복사해 주세요.'; }
+};
+$('bk-dl').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([backupCode()], {type:'application/json'}));
+  a.download = '보카로_가사_백업.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('bk-file').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { $('bk-text').value = r.result; $('bk-msg').textContent = '파일을 읽었어요. 불러오기를 누르세요.'; };
+  r.readAsText(f); e.target.value = '';
+};
+$('bk-load').onclick = () => {
+  let d;
+  try { d = JSON.parse($('bk-text').value); } catch(e) { $('bk-msg').textContent = '백업 코드 형식이 맞지 않아요.'; return; }
+  if (!d || d.app !== 'voca-typing'){ $('bk-msg').textContent = '이 게임의 백업 코드가 아니에요.'; return; }
+  (d.songs || []).forEach(s => { if (typeof s === 'string' && !store.songs.includes(s)) store.songs.push(s); });
+  Object.assign(store.lyrics, d.lyrics || {});
+  Object.assign(store.opts, d.opts || {});
+  for (const [k, v] of Object.entries(d.best || {})){
+    const p = store.best[k];
+    if (!p || v.cpm > p.cpm) store.best[k] = v;
+  }
+  save(); renderList();
+  $('bk-msg').textContent = `불러왔어요. 가사 ${Object.keys(d.lyrics || {}).length}곡을 합쳤어요.`;
+};
+
+/* ---------- 온라인 (Firebase) ---------- */
+function songId(title){
+  let h = 2166136261;
+  for (const ch of title){ h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; }
+  return 's' + h.toString(16) + '-' + title.length;
+}
+const ROOM_RE = /^[A-Za-z0-9_-]{8,40}$/;
+function newRoomCode(){
+  const a = 'abcdefghjkmnpqrstuvwxyz23456789'; let c = 'voca-';
+  const r = new Uint32Array(10); crypto.getRandomValues(r);
+  r.forEach(x => c += a[x % a.length]);
+  return c;
+}
+function rankRows(key){
+  const rows = [];
+  NET.players.forEach(p => {
+    const b = p.id === NET.uid ? store.best[key] : (p.best && p.best[key]);
+    if (b && typeof b.cpm === 'number') rows.push({ id:p.id, name: String(p.name || '이름 없음').slice(0, 20), cpm:b.cpm, acc:b.acc });
+  });
+  if (!NET.players.some(p => p.id === NET.uid) && store.best[key])
+    rows.push({ id:NET.uid, name:store.name, cpm:store.best[key].cpm, acc:store.best[key].acc });
+  return rows.sort((a, b) => b.cpm - a.cpm || b.acc - a.acc);
+}
+function rankTable(key, limit){
+  const rows = rankRows(key).slice(0, limit || 100);
+  if (!rows.length) return '<div class="small" style="padding:10px 0">아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!</div>';
+  return `<table class="rank"><tr><th>순위</th><th>닉네임</th><th style="text-align:right">타수</th><th style="text-align:right">정확도</th></tr>` +
+    rows.map((r, i) => `<tr class="${r.id === NET.uid ? 'me' : ''}"><td>${['🥇','🥈','🥉'][i] || i + 1}</td><td>${esc(r.name)}</td><td class="n">${r.cpm}</td><td class="n">${r.acc}%</td></tr>`).join('') +
+    '</table>';
+}
+let rkTitle = null, rkMode = 'trans';
+function openRank(title){ rkTitle = title; rkMode = store.mode; renderRank(); $('rank').hidden = false; }
+function renderRank(){
+  $('rk-head').textContent = `「${rkTitle}」 랭킹`;
+  document.querySelectorAll('#rk-seg button').forEach(b => {
+    const on = b.dataset.rk === rkMode; b.classList.toggle('on', on); b.classList.toggle('pk', on && rkMode === 'pron');
+  });
+  $('rk-body').innerHTML = rankTable(bestKey(rkTitle, rkMode));
+}
+document.querySelectorAll('#rk-seg button').forEach(b => b.onclick = () => { rkMode = b.dataset.rk; renderRank(); });
+$('rk-close').onclick = () => { $('rank').hidden = true; };
+$('rank').addEventListener('click', e => { if (e.target.id === 'rank') $('rank').hidden = true; });
+
+function renderRoomBar(){
+  if (!FIREBASE_CONFIG){ $('room-bar').hidden = true; return; }
+  $('room-bar').hidden = false;
+  $('hint-store').textContent = NET.on ? '방에 들어가 있으면 가사와 기록이 같은 방 친구들에게 공유돼요 (가사 창에서 공유를 끄면 이 기기에만 저장).' : '가사는 이 브라우저에만 저장되고 다른 사람에게는 보이지 않아요.';
+  $('net-dot').classList.toggle('on', NET.on);
+  $('btn-invite').hidden = !NET.on;
+  $('room-info').textContent = NET.err ? NET.err
+    : NET.on ? `방 ${store.room} · ${store.name} · 참가자 ${Math.max(NET.players.length, 1)}명`
+    : NET.ready ? '혼자 모드 (기록이 이 기기에만 저장돼요)' : '서버에 연결하는 중…';
+  $('btn-room').textContent = NET.on ? '방 · 닉네임 변경' : '친구들과 하기';
+}
+function refreshNet(){ renderRoomBar(); if (!$('v-list').hidden) renderList(); if (!$('rank').hidden) renderRank(); }
+function netError(e){
+  NET.err = '서버 오류: ' + (e && (e.code || e.message) || '알 수 없음') + ' (보안 규칙이나 방 코드를 확인해 주세요)';
+  refreshNet();
+}
+let pushing = Promise.resolve();
+function pushPlayer(){
+  if (!NET.on) return;
+  const room = store.room;
+  pushing = pushing.then(() => NET.fs.setDoc(NET.fs.doc(NET.db, 'rooms', room, 'players', NET.uid),
+    { name: store.name, best: store.best, updated: Date.now() })).catch(netError);
+}
+function joinRoom(room, name){
+  NET.unsub.forEach(u => u()); NET.unsub = [];
+  store.room = room; store.name = name; save();
+  NET.on = true; NET.err = ''; NET.shared = {}; NET.players = [];
+  const { collection, onSnapshot } = NET.fs;
+  NET.unsub.push(onSnapshot(collection(NET.db, 'rooms', room, 'songs'), snap => {
+    const m = {};
+    snap.forEach(d => { const v = d.data(); if (v && typeof v.title === 'string' && typeof v.text === 'string') m[v.title] = Object.assign({ id: d.id }, v); });
+    NET.shared = m; refreshNet();
+  }, netError));
+  NET.unsub.push(onSnapshot(collection(NET.db, 'rooms', room, 'players'), snap => {
+    NET.players = snap.docs.map(d => Object.assign({ id: d.id }, d.data())); refreshNet();
+  }, netError));
+  pushPlayer(); refreshNet();
+}
+function leaveRoom(){
+  NET.unsub.forEach(u => u()); NET.unsub = [];
+  NET.on = false; NET.shared = {}; NET.players = []; store.room = null; save(); refreshNet();
+}
+function openJoin(prefRoom){
+  $('j-name').value = store.name || '';
+  $('j-room').value = prefRoom || store.room || '';
+  $('j-msg').textContent = '';
+  $('join').hidden = false;
+  setTimeout(() => ($('j-name').value ? $('j-room') : $('j-name')).focus(), 30);
+}
+$('j-new').onclick = () => { $('j-room').value = newRoomCode(); };
+$('j-solo').onclick = () => { $('join').hidden = true; leaveRoom(); };
+$('j-go').onclick = () => {
+  const name = $('j-name').value.trim(), room = $('j-room').value.trim();
+  if (!name){ $('j-msg').textContent = '닉네임을 적어 주세요.'; return; }
+  if (!ROOM_RE.test(room)){ $('j-msg').textContent = '방 코드는 영문·숫자·-·_ 로 8~40자여야 해요. "새 방 코드 만들기"를 눌러 보세요.'; return; }
+  if (!NET.ready){ $('j-msg').textContent = NET.err || '아직 서버에 연결하는 중이에요. 잠시 뒤 다시 눌러 주세요.'; return; }
+  $('join').hidden = true;
+  joinRoom(room, name.slice(0, 20));
+};
+$('btn-room').onclick = () => openJoin();
+$('btn-invite').onclick = async () => {
+  const url = location.origin + location.pathname + '?room=' + encodeURIComponent(store.room);
+  try { await navigator.clipboard.writeText(url); $('invite-msg').textContent = '초대 링크를 복사했어요: ' + url; }
+  catch(e){ $('invite-msg').textContent = '이 링크를 친구들에게 보내 주세요: ' + url; }
+};
+
+async function netInit(){
+  if (!FIREBASE_CONFIG){ renderRoomBar(); return; }
+  renderRoomBar();
+  const urlRoom = new URLSearchParams(location.search).get('room');
+  try {
+    const B = 'https://www.gstatic.com/firebasejs/13.1.0/';
+    const [app, auth, fs] = await Promise.all([
+      import(B + 'firebase-app.js'), import(B + 'firebase-auth.js'), import(B + 'firebase-firestore.js')
+    ]);
+    const a = app.initializeApp(FIREBASE_CONFIG);
+    NET.fs = fs; NET.db = fs.getFirestore(a);
+    const cred = await auth.signInAnonymously(auth.getAuth(a));
+    NET.uid = cred.user.uid; NET.ready = true;
+  } catch(e){
+    console.error(e);
+    NET.err = '서버에 연결하지 못했어요 (' + (e.code || e.message) + '). 혼자 모드로 할 수 있어요.';
+    renderRoomBar(); return;
+  }
+  if (urlRoom && ROOM_RE.test(urlRoom) && (urlRoom !== store.room || !store.name)) openJoin(urlRoom);
+  else if (store.room && store.name && ROOM_RE.test(store.room)) joinRoom(store.room, store.name);
+  else { renderRoomBar(); openJoin(); }
+}
+
+renderList();
+netInit();
+</script>
+</body>
+</html>
